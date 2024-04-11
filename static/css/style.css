@@ -1,0 +1,73 @@
+body,
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    /* Adjust the width as needed */
+    max-width: 600px;
+    /* Prevents the container from becoming too wide on large screens */
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.azure-login-btn {
+    /* Styles for the Azure login button */
+    display: block;
+    margin: 10px auto;
+    /* Adjust as needed */
+    padding: 5px 10px;
+    /* Adjust as needed */
+    font-size: 14px;
+    /* Adjust as needed */
+}
+
+.description {
+    /* Assuming you adopt the text box approach */
+    margin: 10px auto;
+    /* Center the text box horizontally */
+    font-size: 14px;
+    width: 80%;
+    /* You may adjust this as necessary */
+    text-align: center;
+}
+
+.clear {
+    clear: both;
+    height: clamp(2em, 5vmax, 3em);
+}
+
+.space {
+    clear: both;
+    height: 1em;
+}
+
+.left-buttons {
+    display: flex;
+    align-items: left;
+    gap: 10px;
+    /* Optional: adds some space between the buttons */
+    justify-content: flex-start;
+    /* Align buttons to the left */
+}
