@@ -20,6 +20,9 @@ app.secret_key = 'My_Secret_Key'  # Replace with your actual secret key
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 CORS(app)
 
+# Load model and tokenizer (change to ours once its ready and uploaded to huggingface)
+tokenizer = AutoTokenizer.from_pretrained("moussaKam/AraBART")
+model = AutoModelForSeq2SeqLM.from_pretrained("moussaKam/AraBART")
 
 # OAuth Setup
 oauth = OAuth(app)
@@ -87,34 +90,29 @@ def authorized():
     
     #for local host
     return redirect(url_for('index', logged_in=True))
+
+@app.route('/translate', methods=['POST'])
+def translate():
+    # Get the text from the request body
+    data = request.get_json()
+    text = data.get('text')
+
+    # Process the text with the model
+    inputs = tokenizer.encode(text, return_tensors='pt')
+    outputs = model.generate(inputs) # change for whatever the command is 
+    translated_text = tokenizer.decode(outputs[0])
+
+    # Return the translated text need to change from json to whatever way we return it 
+    return jsonify({'translated_text': translated_text})
  
 @azure.tokengetter
 def get_azure_oauth_token():
     return session.get('azure_token')
 
 
-# # Load model and tokenizer
-# # Assuming 'my_model_directory' is directly under 'C:\Users\guyma\Desktop\LAB\Seq2seq'
-# model_directory = os.path.abspath('./my_model_directory')
-# # Load model and tokenizer using the absolute path
-# model = AutoModelForSeq2SeqLM.from_pretrained(model_directory)
-# tokenizer = AutoTokenizer.from_pretrained(model_directory)
-
-# @app.route('/api/translate', methods=['POST'])
-# def translate_text():
-#     input_data = request.json
-#     inputs = tokenizer.encode(input_data["text"], return_tensors="pt")
-#     outputs = model.generate(inputs)
-#     translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-#     return jsonify(translated_text=translated_text)
-
-
 
 # #template : 
-
 # # Replace with your account information
-# account_id = "YOUR_ACCOUNT_ID"
-# access_token = "YOUR_ACCESS_TOKEN"
 
 # def upload_video_and_get_transcript(video_filepath):
 #   """

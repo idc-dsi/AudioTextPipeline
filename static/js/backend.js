@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
    async function convertText(textContent, filename) {
       console.log('Sending POST request with text content:', textContent);
       try {
-         const response = await fetch('/api/translate', {
+         const response = await fetch('/translate', {  // Change the URL to your Flask app's URL
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: textContent }),
@@ -89,32 +89,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
    }
 
-   // async function convertText(textContent, filename) {
-   //    alert("Text conversion started");
-   //    console.log('Text Content:', textContent);
-   //    try {
-   //       const response = await fetch('/api/translate', {
-   //          method: 'POST',
-   //          headers: {
-   //             'Content-Type': 'application/json',
-   //          },
-   //          body: JSON.stringify({ text: textContent }),
-   //       });
-   //       if (!response.ok) {
-   //          throw new Error(`HTTP error! status: ${response.status}`);
-   //       }
-   //       const data = await response.json();
-   //       alert("Text conversion completed");
-   //       console.log('Translated Text:', data.translated_text);
 
-   //       // Automatically save the translated text to a file
-   //       saveTextAsFile(data.translated_text, filename);
 
-   //    } catch (error) {
-   //       console.error('Error during text conversion:', error);
-   //       alert("Failed to convert text. Check the console for more details.");
-   //    }
-   // }
 
    function saveTextAsFile(textToSave, filename) {
       const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
