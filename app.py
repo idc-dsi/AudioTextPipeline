@@ -26,7 +26,7 @@ oauth = OAuth(app)
 azure = oauth.remote_app(
     'azure',
     consumer_key='e87d91e8-ab56-45aa-9346-e20b076f61e1',  # Replace with your Azure AD Application ID
-    consumer_secret='aIj8Q~62SQtxBC1It_5nWacHNH1QopAwE9rAlbAA',  # Replace with your Azure AD Client Secret
+    consumer_secret='EhC8Q~f1NluYkO7ef_IvW3pEHqsEkQ_qwPUh0cnY',  # Replace with your Azure AD Client Secret
     request_token_params={'scope': 'openid email profile'},
     base_url='https://graph.microsoft.com/v1.0/',
     request_token_url=None,
