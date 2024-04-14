@@ -110,53 +110,53 @@ def get_azure_oauth_token():
 
 
 
-#template : 
+# #template : 
 
-# Replace with your account information
-account_id = "YOUR_ACCOUNT_ID"
-access_token = "YOUR_ACCESS_TOKEN"
+# # Replace with your account information
+# account_id = "YOUR_ACCOUNT_ID"
+# access_token = "YOUR_ACCESS_TOKEN"
 
-def upload_video_and_get_transcript(video_filepath):
-  """
-  This function uploads a video file to the Azure AI Video Indexer API
-  and retrieves the transcribed text with identified speakers.
+# def upload_video_and_get_transcript(video_filepath):
+#   """
+#   This function uploads a video file to the Azure AI Video Indexer API
+#   and retrieves the transcribed text with identified speakers.
 
-  Args:
-      video_filepath: The path to the video file on your local system.
+#   Args:
+#       video_filepath: The path to the video file on your local system.
 
-  Returns:
-      A dictionary containing the transcript text and speaker information,
-      or None if there's an error.
-  """
+#   Returns:
+#       A dictionary containing the transcript text and speaker information,
+#       or None if there's an error.
+#   """
 
-  # Prepare the request headers
-  headers = {
-      "Authorization": f"Bearer {access_token}"
-  }
+#   # Prepare the request headers
+#   headers = {
+#       "Authorization": f"Bearer {access_token}"
+#   }
 
-  # Open the video file in binary mode
-  with open(video_filepath, "rb") as video_file:
-      video_data = video_file.read()
+#   # Open the video file in binary mode
+#   with open(video_filepath, "rb") as video_file:
+#       video_data = video_file.read()
 
-  # Set request URL based on your region (replace if necessary)
-  url = "https://api.videoindexer.ai/videos"
+#   # Set request URL based on your region (replace if necessary)
+#   url = "https://api.videoindexer.ai/videos"
 
-  # Prepare the multipart form data for video upload
-  form_data = {
-      "video": (os.path.basename(video_filepath), video_data, "video/mp4")  # Adjust content type if needed
-  }
+#   # Prepare the multipart form data for video upload
+#   form_data = {
+#       "video": (os.path.basename(video_filepath), video_data, "video/mp4")  # Adjust content type if needed
+#   }
 
-  try:
-      response = requests.post(url, headers=headers, files=form_data)
-      response.raise_for_status()  # Raise an exception for non-200 status codes
-  except requests.exceptions.RequestException as e:
-      print(f"Error uploading video: {e}")
-      return None
+#   try:
+#       response = requests.post(url, headers=headers, files=form_data)
+#       response.raise_for_status()  # Raise an exception for non-200 status codes
+#   except requests.exceptions.RequestException as e:
+#       print(f"Error uploading video: {e}")
+#       return None
 
-  # Parse the response to get transcript and speaker information (same as before)
-  # ... (refer to previous code for parsing logic)
+#   # Parse the response to get transcript and speaker information (same as before)
+#   # ... (refer to previous code for parsing logic)
 
-  return transcript
+#   return transcript
 
 # Main Entry Point
 if __name__ == '__main__':
