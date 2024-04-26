@@ -2,11 +2,13 @@ from flask import Flask, redirect, url_for, render_template, request, session, j
 from flask_oauthlib.client import OAuth
 from flask_cors import CORS
 from flask_compress import Compress
+from dataclasses import dataclass
 import os
 import json
 from azure.storage.blob import BlobServiceClient, BlobClient, ContentSettings
 from urllib.parse import unquote
 from werkzeug.middleware.proxy_fix import ProxyFix
+from static.py.video_indexer import VideoIndexer  # Importing the VideoIndexer class
 import requests
 import jwt
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -97,64 +99,55 @@ def translate():
     data = request.get_json()
     text = data.get('text')
 
-    # Process the text with the model
-    inputs = tokenizer.encode(text, return_tensors='pt')
-    outputs = model.generate(inputs) # change for whatever the command is 
-    translated_text = tokenizer.decode(outputs[0])
+    # Prepare the text for the model
+    inputs = tokenizer(text, return_tensors="pt")
 
-    # Return the translated text need to change from json to whatever way we return it 
+    # Process the text with the model using specific translation settings
+    ## will need to deal with the max length according to the actual model we will use, we might need to break the text into smaller chunks for the max length and for the computation cost sakes.
+    generated_ids = model.generate(**inputs, num_beams=4, max_length=1024)
+    translated_text = tokenizer.batch_decode(generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+
+    # Return the translated text in JSON format
     return jsonify({'translated_text': translated_text})
+
  
+
+#azure indexer api:
+@app.route('/upload', methods=['POST'])
+def handle_upload():
+    video_file = request.files['file']
+    try:
+        indexer = VideoIndexer(
+            subscription_key="6dd8d30a65eb4004922e6e74a8fb313f",
+            account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+            location="westeurope"
+        )
+
+        video_id = indexer.upload_video_and_get_indexed(video_file)
+        return {'message': 'Video uploaded and processing started', 'videoId': video_id}, 200
+    
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}, 500
+
+
+@app.route('/results/<video_id>', methods=['GET'])
+def get_results(video_id):
+    indexer = VideoIndexer(
+        subscription_key="6dd8d30a65eb4004922e6e74a8fb313f",
+        account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+        location="westeurope"
+    )
+
+    try:
+        results = indexer.get_video_index(video_id)
+        return results, 200
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}, 500
+    
+
 @azure.tokengetter
 def get_azure_oauth_token():
     return session.get('azure_token')
-
-
-
-# #template : 
-# # Replace with your account information
-
-# def upload_video_and_get_transcript(video_filepath):
-#   """
-#   This function uploads a video file to the Azure AI Video Indexer API
-#   and retrieves the transcribed text with identified speakers.
-
-#   Args:
-#       video_filepath: The path to the video file on your local system.
-
-#   Returns:
-#       A dictionary containing the transcript text and speaker information,
-#       or None if there's an error.
-#   """
-
-#   # Prepare the request headers
-#   headers = {
-#       "Authorization": f"Bearer {access_token}"
-#   }
-
-#   # Open the video file in binary mode
-#   with open(video_filepath, "rb") as video_file:
-#       video_data = video_file.read()
-
-#   # Set request URL based on your region (replace if necessary)
-#   url = "https://api.videoindexer.ai/videos"
-
-#   # Prepare the multipart form data for video upload
-#   form_data = {
-#       "video": (os.path.basename(video_filepath), video_data, "video/mp4")  # Adjust content type if needed
-#   }
-
-#   try:
-#       response = requests.post(url, headers=headers, files=form_data)
-#       response.raise_for_status()  # Raise an exception for non-200 status codes
-#   except requests.exceptions.RequestException as e:
-#       print(f"Error uploading video: {e}")
-#       return None
-
-#   # Parse the response to get transcript and speaker information (same as before)
-#   # ... (refer to previous code for parsing logic)
-
-#   return transcript
 
 # Main Entry Point
 if __name__ == '__main__':
