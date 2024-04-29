@@ -90,7 +90,7 @@ def authorized():
     callback_url = url_for('index', logged_in=True, _scheme='https')
     return redirect(callback_url)
     
-    #for local host
+    ##for local host
     #return redirect(url_for('index', logged_in=True))
 
 @app.route('/translate', methods=['POST'])
