@@ -7,11 +7,18 @@ import os
 import json
 from azure.storage.blob import BlobServiceClient, BlobClient, ContentSettings
 from urllib.parse import unquote
+import werkzeug
 from werkzeug.middleware.proxy_fix import ProxyFix
 from static.py.video_indexer import VideoIndexer  # Importing the VideoIndexer class
 import requests
+import sys
 import jwt
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+import logging
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 
 
@@ -20,7 +27,19 @@ app = Flask(__name__)
 Compress(app)
 app.secret_key = 'My_Secret_Key'  # Replace with your actual secret key
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+app.logger = logging.getLogger(__name__)
 CORS(app)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)  # Set the logging level
+
+# Create a formatter to format the log messages (optional)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+app.logger.addHandler(handler)
+
 
 # Load model and tokenizer (change to ours once its ready and uploaded to huggingface)
 tokenizer = AutoTokenizer.from_pretrained("moussaKam/AraBART")
@@ -90,7 +109,7 @@ def authorized():
     callback_url = url_for('index', logged_in=True, _scheme='https')
     return redirect(callback_url)
     
-    ##for local host
+    #for local host
     #return redirect(url_for('index', logged_in=True))
 
 @app.route('/translate', methods=['POST'])
@@ -111,43 +130,105 @@ def translate():
     return jsonify({'translated_text': translated_text})
 
  
-
-#azure indexer api:
 @app.route('/upload', methods=['POST'])
 def handle_upload():
+    print("Entered /upload route")  # Check if the route is being hit
+    if 'file' not in request.files:
+        print("No file part")
+        return redirect(request.url)
     video_file = request.files['file']
-    try:
-        indexer = VideoIndexer(
-            subscription_key="6dd8d30a65eb4004922e6e74a8fb313f",
-            account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
-            location="westeurope"
-        )
-
-        video_id = indexer.upload_video_and_get_indexed(video_file)
-        return {'message': 'Video uploaded and processing started', 'videoId': video_id}, 200
+    if video_file.filename == '':
+        print("No selected file")
+        return redirect(request.url)
+    if video_file:
+        print(video_file)
+        try:
+            indexer = VideoIndexer(
+                subscription_key="2bb2ac4a4fb948f0a8a21cbb239f05a7",
+                account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+                location="trial"
+            )
+            print("About to call upload_video_and_get_indexed")  # Check if the function is about to be called
+            video_id = indexer.upload_video_and_get_indexed(video_file)
+            return {'message': 'Video uploaded and processing started', 'videoId': video_id}, 200
+        except requests.exceptions.RequestException as e:
+            return {'error': str(e)}, 500
+    else:
+        print("File is None")
+        return {'error': 'No file uploaded'}, 400
     
-    except requests.exceptions.RequestException as e:
-        return {'error': str(e)}, 500
-
 
 @app.route('/results/<video_id>', methods=['GET'])
 def get_results(video_id):
     indexer = VideoIndexer(
-        subscription_key="6dd8d30a65eb4004922e6e74a8fb313f",
+        subscription_key="2bb2ac4a4fb948f0a8a21cbb239f05a7",
         account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
-        location="westeurope"
+        location="trial"
     )
 
     try:
         results = indexer.get_video_index(video_id)
-        return results, 200
+        processing_status = results.get('state', 'Processing')  # Default to 'Processing'
+
+        if processing_status.lower() in ['processed', 'indexed']:
+            return {'results': results, 'processingComplete': True}, 200
+        else:
+            return {'processingComplete': False}, 202  # Processing is still underway
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}, 500
-    
+
+@app.route('/list_files', methods=['GET'])
+def list_files():
+    return render_template('list_files.html')
+
+
+@app.route('/list_videos', methods=['GET'])
+def list_videos():
+    """Return a JSON array of available video names and their IDs."""
+    indexer = VideoIndexer(
+        subscription_key="2bb2ac4a4fb948f0a8a21cbb239f05a7",
+        account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+        location="trial"
+    )
+    videos = indexer.list_videos()
+    video_list = [{"name": video["name"], "id": video["id"]} for video in videos]
+    return jsonify(video_list)
+
+
+@app.route('/get_captions/<video_id>', methods=['GET'])
+def get_captions(video_id):
+    indexer = VideoIndexer(
+        subscription_key="2bb2ac4a4fb948f0a8a21cbb239f05a7",
+        account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+        location="trial"
+    )
+    try:
+        captions = indexer.get_video_captions(video_id)
+        return captions, 200
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}, 500
+
+
+@app.route('/test_captions/<video_id>', methods=['GET'])
+def test_captions(video_id):
+    indexer = VideoIndexer(
+        subscription_key="2bb2ac4a4fb948f0a8a21cbb239f05a7",
+        account_id="54f05c12-3476-43f4-96a7-3c80439ecb5c",
+        location="trial"
+    )
+    try:
+        captions = indexer.get_video_captions(video_id)
+        return Response(captions, mimetype='text/plain; charset=utf-8')
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}, 500
+
+
+
 
 @azure.tokengetter
 def get_azure_oauth_token():
     return session.get('azure_token')
+
 
 # Main Entry Point
 if __name__ == '__main__':

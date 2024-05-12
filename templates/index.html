@@ -5,30 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio to Text Pipeline</title>
-    <link rel="stylesheet" href="static\css\style.css">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 
 <body>
-    <div class="clear"></div>
-
-    <div class="left-buttons">
-        <button class="azure-login-btn" onclick="location.href='/login'">Login with Azure</button>
-    </div>
-
     <div class="container">
         <h1>Audio to Text Pipeline</h1>
-        <p id="loadAudioDesc">Choose an Audio file to convert it into text.</p>
-        <button id="loadAudioBtn">Load Audio</button>
+        <button class="azure-login-btn" onclick="location.href='/login'">Login with Azure</button>
+        <p id="loadAudioDesc">Choose an Audio file to upload it to Azures' Indexer.</p>
+        <button id="loadAudioBtn"><i class="fas fa-upload"></i> Load Audio</button>
+
+
+        <p id="loadFileList">Get transcript from a list of files.</p>
+        <button id="loadListBtn">Get Transcript</button>
 
         <p id="loadTextDesc">Choose a text file to convert it into audio.</p>
         <button id="loadTextBtn">Load Text</button>
 
-        <p id="transformDesc">Click the button below to transform run the program.</p>
+        <p id="transformDesc">Click the button below to run the program.</p>
         <button id="transformBtn">Transform</button>
     </div>
 
-    <script src="static\js\backend.js"></script>
-</body>
+    <!-- Existing backend.js -->
+    <script src="static/js/backend.js"></script>
 
+    <!-- New inline script for redirection -->
+    <script>
+        // Redirect to list_files.html when clicking on "Get Transcript"
+        document.getElementById('loadListBtn').addEventListener('click', function () {
+            window.location.href = '/list_files';
+        });
+    </script>
+</body>
 
 </html>

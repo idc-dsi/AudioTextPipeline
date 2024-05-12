@@ -1,73 +1,101 @@
+/* Resetting basic properties for a consistent layout across browsers */
 body,
 html {
-    width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    /* Using flexbox for centering and flexible layouts */
     flex-direction: column;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+    /* Align children vertically */
+    align-items: center;
+    /* Center children horizontally */
+    justify-content: flex-start;
+    /* Align content to the top */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    /* Font styling */
+    background-color: #f4f4f9;
+    /* Light grey background for easier visibility */
+    color: #333;
+    /* Dark text for better readability */
+    overflow-y: auto;
+    /* Allow vertical scrolling if content overflows */
 }
 
 .container {
+    width: 90%;
+    /* Responsive width, using most of the viewport width */
+    max-width: 600px;
+    /* Maximum width to maintain readability and usability */
+    padding: 20px;
+    /* Padding around content inside the container */
+    background-color: #ffffff;
+    /* White background for the content area */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow for depth */
+    border-radius: 8px;
+    /* Rounded corners for a modern look */
     text-align: center;
+    /* Center text for better aesthetics */
+    margin-top: 20px;
+    /* Add space above the container to avoid touching the viewport edge */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* Stack children vertically */
     align-items: center;
-    width: 80%;
-    /* Adjust the width as needed */
-    max-width: 600px;
-    /* Prevents the container from becoming too wide on large screens */
+    /* Center-align children horizontally */
 }
 
 button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
+    background-color: transparent;
+    /* Removes the full blue background */
+    color: #0078d4;
+    /* Azure blue text color for high contrast */
+    border: 2px solid #0078d4;
+    /* Azure blue border for consistency */
+    padding: 8px 16px;
+    /* Reduced padding around text */
+    margin: 10px auto;
+    /* Keeps the vertical and horizontal margin */
     font-size: 16px;
+    /* Keeps font size readable */
     cursor: pointer;
+    /* Ensures it's clear the button is clickable */
+    border-radius: 4px;
+    /* Maintains rounded corners */
+    transition: background-color 0.3s, color 0.3s;
+    /* Smooth transition for hover effects */
+}
+
+button:hover {
+    background-color: #0078d4;
+    /* Blue background on hover */
+    color: white;
+    /* White text on hover for contrast */
 }
 
 .azure-login-btn {
-    /* Styles for the Azure login button */
-    display: block;
-    margin: 10px auto;
-    /* Adjust as needed */
-    padding: 5px 10px;
-    /* Adjust as needed */
     font-size: 14px;
-    /* Adjust as needed */
+    /* Slightly smaller font for less prominent button */
 }
 
-.description {
-    /* Assuming you adopt the text box approach */
-    margin: 10px auto;
-    /* Center the text box horizontally */
-    font-size: 14px;
-    width: 80%;
-    /* You may adjust this as necessary */
-    text-align: center;
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        /* Allow more width usage on smaller screens */
+    }
 }
 
-.clear {
-    clear: both;
-    height: clamp(2em, 5vmax, 3em);
-}
+@media (max-width: 480px) {
+    .container {
+        width: 100%;
+        /* Full width on very small screens for maximum space utilization */
+    }
 
-.space {
-    clear: both;
-    height: 1em;
-}
-
-.left-buttons {
-    display: flex;
-    align-items: left;
-    gap: 10px;
-    /* Optional: adds some space between the buttons */
-    justify-content: flex-start;
-    /* Align buttons to the left */
+    button {
+        padding: 10px 20px;
+        /* Adjust padding slightly for small screens */
+    }
 }
